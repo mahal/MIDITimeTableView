@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A058B6C9208F35A200B5D067 /* ViewControllerExample2.swift in Sources */ = {isa = PBXBuildFile; fileRef = A058B6C8208F35A200B5D067 /* ViewControllerExample2.swift */; };
+		A058B6CB208F382000B5D067 /* Conductor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A058B6CA208F382000B5D067 /* Conductor.swift */; };
+		A058B6CD208F3B8C00B5D067 /* Morley-Now_is_the_month_of_maying.mid in Resources */ = {isa = PBXBuildFile; fileRef = A058B6CC208F3B8C00B5D067 /* Morley-Now_is_the_month_of_maying.mid */; };
+		A058B6CF208F550000B5D067 /* FM Piano.wav in Resources */ = {isa = PBXBuildFile; fileRef = A058B6CE208F550000B5D067 /* FM Piano.wav */; };
+		A058B6D3208F75B700B5D067 /* AudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A058B6D2208F75B700B5D067 /* AudioKit.framework */; };
 		B22020FE202E3E75005A8339 /* MIDITimeTableHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22020FD202E3E75005A8339 /* MIDITimeTableHistory.swift */; };
 		B27C690A1FC706F800816627 /* MIDITimeTablePlayheadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27C69091FC706F800816627 /* MIDITimeTablePlayheadView.swift */; };
 		B29FB6AF1F923E07006E4EA8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29FB6AE1F923E07006E4EA8 /* AppDelegate.swift */; };
@@ -27,6 +32,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A058B6C8208F35A200B5D067 /* ViewControllerExample2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerExample2.swift; sourceTree = "<group>"; };
+		A058B6CA208F382000B5D067 /* Conductor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conductor.swift; sourceTree = "<group>"; };
+		A058B6CC208F3B8C00B5D067 /* Morley-Now_is_the_month_of_maying.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Morley-Now_is_the_month_of_maying.mid"; sourceTree = "<group>"; };
+		A058B6CE208F550000B5D067 /* FM Piano.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "FM Piano.wav"; sourceTree = "<group>"; };
+		A058B6D2208F75B700B5D067 /* AudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioKit.framework; path = "../../AudioKit/Frameworks/AudioKit-iOS/AudioKit.framework"; sourceTree = "<group>"; };
 		B22020FD202E3E75005A8339 /* MIDITimeTableHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDITimeTableHistory.swift; sourceTree = "<group>"; };
 		B27C69091FC706F800816627 /* MIDITimeTablePlayheadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDITimeTablePlayheadView.swift; sourceTree = "<group>"; };
 		B29FB6AB1F923E07006E4EA8 /* MIDITimeTableView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MIDITimeTableView.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -53,6 +63,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A058B6D3208F75B700B5D067 /* AudioKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,10 +92,15 @@
 				B29FB6C01F923E23006E4EA8 /* Source */,
 				B29FB6AE1F923E07006E4EA8 /* AppDelegate.swift */,
 				B29FB6B01F923E07006E4EA8 /* ViewController.swift */,
+				A058B6C8208F35A200B5D067 /* ViewControllerExample2.swift */,
+				A058B6CA208F382000B5D067 /* Conductor.swift */,
 				B29FB6B21F923E07006E4EA8 /* Main.storyboard */,
 				B29FB6B51F923E07006E4EA8 /* Assets.xcassets */,
 				B29FB6B71F923E07006E4EA8 /* LaunchScreen.storyboard */,
 				B29FB6BA1F923E07006E4EA8 /* Info.plist */,
+				A058B6CC208F3B8C00B5D067 /* Morley-Now_is_the_month_of_maying.mid */,
+				A058B6CE208F550000B5D067 /* FM Piano.wav */,
+				A058B6D2208F75B700B5D067 /* AudioKit.framework */,
 			);
 			path = MIDITimeTableView;
 			sourceTree = "<group>";
@@ -169,6 +185,8 @@
 			files = (
 				B29FB6B91F923E07006E4EA8 /* LaunchScreen.storyboard in Resources */,
 				B29FB6B61F923E07006E4EA8 /* Assets.xcassets in Resources */,
+				A058B6CD208F3B8C00B5D067 /* Morley-Now_is_the_month_of_maying.mid in Resources */,
+				A058B6CF208F550000B5D067 /* FM Piano.wav in Resources */,
 				B29FB6B41F923E07006E4EA8 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -191,7 +209,9 @@
 				B29FB6B11F923E07006E4EA8 /* ViewController.swift in Sources */,
 				B2A510121F9543D5005FE3DB /* MIDITimeTableTimeSignature.swift in Sources */,
 				B2A5101C1F95447F005FE3DB /* MIDITimeTableRowData.swift in Sources */,
+				A058B6CB208F382000B5D067 /* Conductor.swift in Sources */,
 				B2A510181F95443A005FE3DB /* MIDITimeTableCellView.swift in Sources */,
+				A058B6C9208F35A200B5D067 /* ViewControllerExample2.swift in Sources */,
 				B2A510141F9543FA005FE3DB /* MIDITimeTableMeasureLayer.swift in Sources */,
 				B29FB6AF1F923E07006E4EA8 /* AppDelegate.swift in Sources */,
 			);
@@ -331,7 +351,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 77Y3N48SNF;
+				DEVELOPMENT_TEAM = PLESVHYAT7;
 				INFOPLIST_FILE = MIDITimeTableView/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -347,7 +367,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 77Y3N48SNF;
+				DEVELOPMENT_TEAM = PLESVHYAT7;
 				INFOPLIST_FILE = MIDITimeTableView/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
