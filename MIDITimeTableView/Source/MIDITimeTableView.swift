@@ -132,6 +132,8 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
   public var showsRangeHead: Bool = true
   /// Property to enable/disable history feature. Deafults true.
   public var holdsHistory: Bool = true
+  /// Property to enable/disable editing of melody (and selection by touch and drag)
+  public var cellsSelectable = true
 
   /// Speed of zooming by pinch gesture.
   public var zoomSpeed: CGFloat = 0.4
@@ -394,15 +396,17 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
   open override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
     super.touchesBegan(touches, with: event)
 
-    // Start drag timer.
-    guard let touchLocation = touches.first?.location(in: self) else { return }
-    dragStartPosition = touchLocation
-    dragTimer = Timer.scheduledTimer(
-      timeInterval: dragTimerInterval,
-      target: self,
-      selector: #selector(createDragView),
-      userInfo: nil,
-      repeats: false)
+    if (cellsSelectable) {
+        // Start drag timer.
+        guard let touchLocation = touches.first?.location(in: self) else { return }
+            dragStartPosition = touchLocation
+            dragTimer = Timer.scheduledTimer(
+                timeInterval: dragTimerInterval,
+                target: self,
+                selector: #selector(createDragView),
+          userInfo: nil,
+          repeats: false)
+    }
   }
 
   @objc private func createDragView() {
