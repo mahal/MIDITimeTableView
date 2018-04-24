@@ -60,6 +60,8 @@ public struct MIDITimeTableCellViewCustomMenuItem {
 
 /// Base cell view that shows on `MIDITimeTableView`. Has abilitiy to move, resize and delete.
 open class MIDITimeTableCellView: UIView {
+  /// Property to enable/disable editing of this note (move, resize, delete)
+  public var editable = true
   /// View that holds the pan gesture on right most side in the view to use in resizing cell.
   private let resizeView = UIView()
   /// Inset from the rightmost side on the cell to capture resize gesture.
@@ -72,7 +74,7 @@ open class MIDITimeTableCellView: UIView {
   open var isSelected: Bool = false
 
   open override var canBecomeFirstResponder: Bool {
-    return true
+    return editable
   }
 
   // MARK: Init
@@ -88,6 +90,10 @@ open class MIDITimeTableCellView: UIView {
   }
 
   private func commonInit() {
+    if ( !editable) {
+        return
+    }
+    
     addSubview(resizeView)
     let resizeGesture = UIPanGestureRecognizer(target: self, action: #selector(didResize(pan:)))
     resizeView.addGestureRecognizer(resizeGesture)
