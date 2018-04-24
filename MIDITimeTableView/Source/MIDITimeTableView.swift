@@ -310,7 +310,7 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
     rangeheadView.measureHeight = measureHeight
     rangeheadView.lineHeight = contentSize.height - measureHeight
     rangeheadView.measureBeatWidth = measureWidth / CGFloat(measureView.beatCount)
-    rangeheadView.isHidden = !showsPlayhead
+    rangeheadView.isHidden = !showsRangeHead
     bringSubview(toFront: rangeheadView)
 
     // Grid layer
