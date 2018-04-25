@@ -87,6 +87,7 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
     private var lastSequencerUpdatedWhileDragTimestamp = Date.init()
     private var isPlaying = false
     
+    // could probably done more efficiently with some nice swift mutating collection stuff that I'm not familiar with
     lazy var midiNoteData : [MIDITimeTableRowData] = {
         var outArray : [MIDITimeTableRowData] = []
         var lookupArray = Conductor.shared().midiNoteDataByNote
@@ -115,6 +116,7 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
         return outArray
     }()
     
+    // could probably done more efficiently with some nice swift mutating collection stuff that I'm not familiar with 
     func convertMIDINotesToRow(notes: [AKMIDINoteData]) -> MIDITimeTableRowData {
         var cells : [MIDITimeTableCellData] = []
         for note in notes {
