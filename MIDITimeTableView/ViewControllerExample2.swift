@@ -79,10 +79,13 @@ class CellView2: MIDITimeTableCellView {
 }
 
 
-class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MIDITimeTableViewDelegate {
+class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MIDITimeTableViewDelegate, UIScrollViewDelegate {
     
     @IBOutlet weak var pianoRollView: MIDITimeTableView?
     private var updateIntervalTimer : Timer?
+    private var isDragInProgress = false
+    private var lastSequencerUpdatedWhileDragTimestamp = Date.init()
+    private var isPlaying = false
     
     lazy var midiNoteData : [MIDITimeTableRowData] = {
         var outArray : [MIDITimeTableRowData] = []
@@ -135,6 +138,7 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
     }
     
     func setupPianoRollView() {
+        pianoRollView?.delegate = self
         pianoRollView?.dataSource = self
         pianoRollView?.timeTableDelegate = self
         pianoRollView?.gridLayer.showsSubbeatLines = false
@@ -142,9 +146,10 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
         pianoRollView?.showsRangeHead = false
         pianoRollView?.holdsHistory = false
         pianoRollView?.cellsSelectable = false
+        pianoRollView?.fixedPlayhead = true
         pianoRollView?.measureWidth = 100.0
         pianoRollView?.maxMeasureWidth = 200.0
-        pianoRollView?.minMeasureWidth = 50.0
+        pianoRollView?.minMeasureWidth = 10.0
         pianoRollView?.reloadData()
     }
     
@@ -155,20 +160,30 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
     
     @IBAction func play(_ sender: Any) {
         Conductor.shared().sequencer.play()
-        updateIntervalTimer = Timer.scheduledTimer(
-            timeInterval: 0.1,
-            target: self,
-            selector: #selector(updatePlayhead),
-            userInfo: nil,
-            repeats: true)
+        isPlaying = true
+        startUpdatePlayheadTimer()
     }
     
     @IBAction func stop(_ sender: Any) {
-        updateIntervalTimer?.invalidate()
-        updateIntervalTimer = nil
+        isPlaying = false
+        stopUpdatePlaheadTimer()
         Conductor.shared().sequencer.stop()
     }
     
+  func startUpdatePlayheadTimer() {
+    updateIntervalTimer = Timer.scheduledTimer(
+      timeInterval: 0.1,
+      target: self,
+      selector: #selector(updatePlayhead),
+      userInfo: nil,
+      repeats: true)
+  }
+  
+  func stopUpdatePlaheadTimer() {
+    updateIntervalTimer?.invalidate()
+
+  }
+  
     // MARK: MIDITimeTableViewDataSource
     
     func numberOfRows(in midiTimeTableView: MIDITimeTableView) -> Int {
@@ -218,5 +233,59 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
     func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, historyDidChange history: MIDITimeTableHistory) {
         // nop
     }
+
+
+  // MARK: UIScrollViewDelegate
+  public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    // this event comes when we manipulate the contentOffset by our own and when user drags the view. 
+    // update the sequencer when in manual drag
+    if isDragInProgress {
+      if lastSequencerUpdatedWhileDragTimestamp.timeIntervalSinceNow < TimeInterval(-0.3) {
+        lastSequencerUpdatedWhileDragTimestamp = Date.init()
+        DispatchQueue.global(qos: .userInitiated).async {
+          let sequencer = Conductor.shared().sequencer
+          let relativePosition = (self.pianoRollView?.contentOffset.x)! / (self.pianoRollView?.contentSize.width)!
+          //NSLog("relative position \(relativePosition)")
+          let newTimestamp = sequencer.length.musicTimeStamp * Double(relativePosition)
+          sequencer.setTime(newTimestamp)
+        }
+      }
+    }
+  }
+  
+  public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+    isDragInProgress = true
+    // without live scrubbing: stop timer and sequencer
+    //stop(self)  
+    
+    // with live scrubbing: only stop timer. 
+    // doens't really work as well as in Logic. Maybe need to iterate the sequence and play notes at the current scroll position. 
+     updateIntervalTimer?.invalidate()
+
+  }
+  
+  public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    if !decelerate {
+      dragEnded()
+    }
+  }
+
+  
+  // the decelerating can take quite a long time 
+  public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+    dragEnded()
+  }
+  
+  func dragEnded() {
+    if isDragInProgress {
+      isDragInProgress = false
+      if isPlaying {
+        startUpdatePlayheadTimer()
+      } else {
+        updatePlayhead()
+      }
+    }
+  }
+
 }
 

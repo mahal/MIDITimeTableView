@@ -128,6 +128,8 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
   public var showsGrid: Bool = true
   /// Property to show playhead. Defaults true.
   public var showsPlayhead: Bool = true
+  /// Property to keep playhead on a position and scroll the view instead. Defaults false.
+  public var fixedPlayhead: Bool = false { didSet{ playheadView.fixedPlayhead = fixedPlayhead }}
   /// Property to show range head that sets the playable are on the timetable. Defaults true.
   public var showsRangeHead: Bool = true
   /// Property to enable/disable history feature. Deafults true.
@@ -750,6 +752,14 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
       }
     }
   }
+
+    public func playheadViewDidUpdatePlayheadPosition(_ playheadView: MIDITimeTablePlayheadView) {
+        // move scrollview accordingly
+        if fixedPlayhead {
+          let newXposition = playheadView.frame.origin.x - playheadView.bounds.width / 2 - headerCellWidth
+           setContentOffset(CGPoint(x: newXposition, y: contentOffset.y), animated: true)
+        }
+    }
 
   // MARK: MIDITimeTableHistoryDelegate
 

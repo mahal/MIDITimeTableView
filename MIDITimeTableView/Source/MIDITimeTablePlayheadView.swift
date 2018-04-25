@@ -16,6 +16,12 @@ public protocol MIDITimeTablePlayheadViewDelegate: class {
   ///   - playheadView: Playhead that panning.
   ///   - panGestureRecognizer: Pan gesture that pans playhead.
   func playheadView(_ playheadView: MIDITimeTablePlayheadView, didPan panGestureRecognizer: UIPanGestureRecognizer)
+
+  /// Delegate method that informs delegate of new playhead position
+  ///
+  /// - Parameters:
+  ///   - playheadView: Playhead that panning.
+  func playheadViewDidUpdatePlayheadPosition(_ playheadView: MIDITimeTablePlayheadView) 
 }
 
 public enum MIDITimeTablePlayheadShape {
@@ -36,6 +42,8 @@ public class MIDITimeTablePlayheadView: UIView {
   /// MIDITimeTableHeaderCellView's width that used in layout playhead in timetable.
   public var rowHeaderWidth: CGFloat = 0.0 { didSet{ updatePosition() }}
 
+  /// if playhead can be moved by user
+  public var fixedPlayhead : Bool = false { didSet{ updateGestureRecognizer() }}
   /// Optional image for playhead instead of default triangle shape layer.
   public var image: UIImage? { didSet{ updateImage() }}
   /// Shape layer that draws triangle playhead shape. You can change the default shape.
@@ -77,7 +85,7 @@ public class MIDITimeTablePlayheadView: UIView {
   }
 
   private func commonInit() {
-    panningView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(didPan(pan:))))
+    updateGestureRecognizer()
     addSubview(panningView)
     layer.addSublayer(lineLayer)
     layer.addSublayer(shapeLayer)
@@ -113,11 +121,25 @@ public class MIDITimeTablePlayheadView: UIView {
   }
 
   private func updatePosition() {
+    let oldFrame = frame
     frame = CGRect(
       x: rowHeaderWidth + (CGFloat(position) * measureBeatWidth) - (frame.size.width / 2),
       y: 1,
       width: measureHeight,
       height: measureHeight - 1)
+    
+    // comes here a lot even when nothing has really changed
+    if oldFrame != frame {
+        delegate?.playheadViewDidUpdatePlayheadPosition(self)    
+    }   
+  }
+    
+  private func updateGestureRecognizer() {
+    if !fixedPlayhead && (panningView.gestureRecognizers == nil ||  panningView.gestureRecognizers?.count == 0 ) {
+      panningView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(didPan(pan:))))
+    } else { 
+      panningView.gestureRecognizers = [] 
+    }
   }
 
   private func updateImage() {
