@@ -247,6 +247,9 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
   open override func layoutSubviews() {
     super.layoutSubviews()
 
+    if isDragging || isDecelerating {
+      return
+    }
     if isResizing || isMoving {
       return
     }
