@@ -13,6 +13,8 @@
 		A058B6CF208F550000B5D067 /* FM Piano.wav in Resources */ = {isa = PBXBuildFile; fileRef = A058B6CE208F550000B5D067 /* FM Piano.wav */; };
 		A058B6D3208F75B700B5D067 /* AudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A058B6D2208F75B700B5D067 /* AudioKit.framework */; };
 		A058B6D72090714300B5D067 /* Br-151.mid in Resources */ = {isa = PBXBuildFile; fileRef = A058B6D62090714300B5D067 /* Br-151.mid */; };
+		A0CB197C209A01F90031108E /* MIDITimeTableViewBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0CB197B209A01F90031108E /* MIDITimeTableViewBase.swift */; };
+		A0CB197E209A021E0031108E /* MIDITimeTablePianoRollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0CB197D209A021E0031108E /* MIDITimeTablePianoRollView.swift */; };
 		B22020FE202E3E75005A8339 /* MIDITimeTableHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22020FD202E3E75005A8339 /* MIDITimeTableHistory.swift */; };
 		B27C690A1FC706F800816627 /* MIDITimeTablePlayheadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27C69091FC706F800816627 /* MIDITimeTablePlayheadView.swift */; };
 		B29FB6AF1F923E07006E4EA8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29FB6AE1F923E07006E4EA8 /* AppDelegate.swift */; };
@@ -39,6 +41,8 @@
 		A058B6CE208F550000B5D067 /* FM Piano.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "FM Piano.wav"; sourceTree = "<group>"; };
 		A058B6D2208F75B700B5D067 /* AudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioKit.framework; path = "../../AudioKit/Frameworks/AudioKit-iOS/AudioKit.framework"; sourceTree = "<group>"; };
 		A058B6D62090714300B5D067 /* Br-151.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Br-151.mid"; sourceTree = "<group>"; };
+		A0CB197B209A01F90031108E /* MIDITimeTableViewBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDITimeTableViewBase.swift; sourceTree = "<group>"; };
+		A0CB197D209A021E0031108E /* MIDITimeTablePianoRollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDITimeTablePianoRollView.swift; sourceTree = "<group>"; };
 		B22020FD202E3E75005A8339 /* MIDITimeTableHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDITimeTableHistory.swift; sourceTree = "<group>"; };
 		B27C69091FC706F800816627 /* MIDITimeTablePlayheadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDITimeTablePlayheadView.swift; sourceTree = "<group>"; };
 		B29FB6AB1F923E07006E4EA8 /* MIDITimeTableView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MIDITimeTableView.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -111,7 +115,9 @@
 		B29FB6C01F923E23006E4EA8 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				A0CB197B209A01F90031108E /* MIDITimeTableViewBase.swift */,
 				B29FB6C11F923E31006E4EA8 /* MIDITimeTableView.swift */,
+				A0CB197D209A021E0031108E /* MIDITimeTablePianoRollView.swift */,
 				B2A510171F95443A005FE3DB /* MIDITimeTableCellView.swift */,
 				B2A510191F95445A005FE3DB /* MIDITimeTableHeaderCellView.swift */,
 				B2A510151F954414005FE3DB /* MIDITimeTableMeasureView.swift */,
@@ -210,6 +216,8 @@
 				B2A510101F9543B6005FE3DB /* MIDITimeTableNoteValue.swift in Sources */,
 				B27C690A1FC706F800816627 /* MIDITimeTablePlayheadView.swift in Sources */,
 				B2A5101A1F95445A005FE3DB /* MIDITimeTableHeaderCellView.swift in Sources */,
+				A0CB197E209A021E0031108E /* MIDITimeTablePianoRollView.swift in Sources */,
+				A0CB197C209A01F90031108E /* MIDITimeTableViewBase.swift in Sources */,
 				B29FB6B11F923E07006E4EA8 /* ViewController.swift in Sources */,
 				B2A510121F9543D5005FE3DB /* MIDITimeTableTimeSignature.swift in Sources */,
 				B2A5101C1F95447F005FE3DB /* MIDITimeTableRowData.swift in Sources */,

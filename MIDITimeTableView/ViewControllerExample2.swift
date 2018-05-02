@@ -81,7 +81,7 @@ class CellView2: MIDITimeTableCellView {
 
 class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MIDITimeTableViewDelegate, UIScrollViewDelegate {
     
-    @IBOutlet weak var pianoRollView: MIDITimeTableView?
+    @IBOutlet weak var pianoRollView: MIDITimeTablePianoRollView?
     private var updateIntervalTimer : Timer?
     private var isDragInProgress = false
     private var lastSequencerUpdatedWhileDragTimestamp = Date.init()
@@ -146,18 +146,15 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
         pianoRollView?.gridLayer.showsSubbeatLines = false
         pianoRollView?.showsGrid = false
         pianoRollView?.showsRangeHead = false
-        pianoRollView?.holdsHistory = false
-        pianoRollView?.cellsSelectable = false
-        pianoRollView?.fixedPlayhead = true
         pianoRollView?.measureWidth = 100.0
         pianoRollView?.maxMeasureWidth = 200.0
         pianoRollView?.minMeasureWidth = 10.0
         pianoRollView?.reloadData()
     }
     
-    @objc func updatePlayhead() {
-        let sequencerPosition = Conductor.shared().sequencer.currentPosition
-        pianoRollView?.playheadView.position = sequencerPosition.beats
+    @objc func updatePlayheadPosition() {
+        
+      
     }
     
     @IBAction func play(_ sender: Any) {
@@ -176,7 +173,7 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
     updateIntervalTimer = Timer.scheduledTimer(
       timeInterval: 0.1,
       target: self,
-      selector: #selector(updatePlayhead),
+      selector: #selector(updatePlayheadPosition),
       userInfo: nil,
       repeats: true)
   }
@@ -188,54 +185,42 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
   
     // MARK: MIDITimeTableViewDataSource
     
-    func numberOfRows(in midiTimeTableView: MIDITimeTableView) -> Int {
+    func numberOfRows(in midiTimeTableView: MIDITimeTableViewBase) -> Int {
         return midiNoteData.count
     }
     
-    func timeSignature(of midiTimeTableView: MIDITimeTableView) -> MIDITimeTableTimeSignature {
+    func timeSignature(of midiTimeTableView: MIDITimeTableViewBase) -> MIDITimeTableTimeSignature {
         // TODO: how to represent it? can it be read from the midi-file?
         return MIDITimeTableTimeSignature(beats: 4, noteValue: .quarter)
     }
     
-    func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, rowAt index: Int) -> MIDITimeTableRowData {
+    func midiTimeTableView(_ midiTimeTableView: MIDITimeTableViewBase, rowAt index: Int) -> MIDITimeTableRowData {
         let row = midiNoteData[index]
         return row
     }
     
     // MARK: MIDITimeTableViewDelegate
     
-    func midiTimeTableViewHeightForRows(_ midiTimeTableView: MIDITimeTableView) -> CGFloat {
+    func midiTimeTableViewHeightForRows(_ midiTimeTableView: MIDITimeTableViewBase) -> CGFloat {
         return 3.5
     }
     
-    func midiTimeTableViewHeightForMeasureView(_ midiTimeTableView: MIDITimeTableView) -> CGFloat {
+    func midiTimeTableViewHeightForMeasureView(_ midiTimeTableView: MIDITimeTableViewBase) -> CGFloat {
         return 10
     }
     
-    func midiTimeTableViewWidthForRowHeaderCells(_ midiTimeTableView: MIDITimeTableView) -> CGFloat {
+    func midiTimeTableViewWidthForRowHeaderCells(_ midiTimeTableView: MIDITimeTableViewBase) -> CGFloat {
         return 20
     }
     
-    func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, didDelete cells: [MIDITimeTableCellIndex]) {
-        // nop
-    }
-    
-    func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, didEdit cells: [MIDITimeTableViewEditedCellData]) {
-        // nop
-    }
-    
-    func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, didUpdatePlayhead position: Double) {
+    func midiTimeTableView(_ midiTimeTableView: MIDITimeTableViewBase, didUpdatePlayhead position: Double) {
         return
     }
     
-    func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, didUpdateRangeHead position: Double) {
+    func midiTimeTableView(_ midiTimeTableView: MIDITimeTableViewBase, didUpdateRangeHead position: Double) {
         return
     }
     
-    func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, historyDidChange history: MIDITimeTableHistory) {
-        // nop
-    }
-
 
   // MARK: UIScrollViewDelegate
   public func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -284,7 +269,7 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
       if isPlaying {
         startUpdatePlayheadTimer()
       } else {
-        updatePlayhead()
+        updatePlayheadPosition()
       }
     }
   }

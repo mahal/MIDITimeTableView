@@ -96,7 +96,7 @@ class CellView: MIDITimeTableCellView {
   }
 }
 
-class ViewController: UIViewController, MIDITimeTableViewDataSource, MIDITimeTableViewDelegate {
+class ViewController: UIViewController, MIDITimeTableViewDataSource, MIDITimeTableViewDelegate,MIDITimeTableViewEditDelegate {
   @IBOutlet weak var timeTableView: MIDITimeTableView?
   @IBOutlet weak var undoButton: UIBarButtonItem?
   @IBOutlet weak var redoButton: UIBarButtonItem?
@@ -213,30 +213,30 @@ class ViewController: UIViewController, MIDITimeTableViewDataSource, MIDITimeTab
 
   // MARK: MIDITimeTableViewDataSource
 
-  func numberOfRows(in midiTimeTableView: MIDITimeTableView) -> Int {
+  func numberOfRows(in midiTimeTableView: MIDITimeTableViewBase) -> Int {
     return rowData.count
   }
 
-  func timeSignature(of midiTimeTableView: MIDITimeTableView) -> MIDITimeTableTimeSignature {
+  func timeSignature(of midiTimeTableView: MIDITimeTableViewBase) -> MIDITimeTableTimeSignature {
     return MIDITimeTableTimeSignature(beats: 4, noteValue: .quarter)
   }
 
-  func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, rowAt index: Int) -> MIDITimeTableRowData {
+  func midiTimeTableView(_ midiTimeTableView: MIDITimeTableViewBase, rowAt index: Int) -> MIDITimeTableRowData {
     let row = rowData[index]
     return row
   }
 
   // MARK: MIDITimeTableViewDelegate
 
-  func midiTimeTableViewHeightForRows(_ midiTimeTableView: MIDITimeTableView) -> CGFloat {
+  func midiTimeTableViewHeightForRows(_ midiTimeTableView: MIDITimeTableViewBase) -> CGFloat {
     return 60
   }
 
-  func midiTimeTableViewHeightForMeasureView(_ midiTimeTableView: MIDITimeTableView) -> CGFloat {
+  func midiTimeTableViewHeightForMeasureView(_ midiTimeTableView: MIDITimeTableViewBase) -> CGFloat {
     return 20
   }
 
-  func midiTimeTableViewWidthForRowHeaderCells(_ midiTimeTableView: MIDITimeTableView) -> CGFloat {
+  func midiTimeTableViewWidthForRowHeaderCells(_ midiTimeTableView: MIDITimeTableViewBase) -> CGFloat {
     return 100
   }
 
@@ -246,7 +246,7 @@ class ViewController: UIViewController, MIDITimeTableViewDataSource, MIDITimeTab
     updateHistoryButtons()
   }
 
-  func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, didEdit cells: [MIDITimeTableViewEditedCellData]) {
+  func midiTimeTableView(_ midiTimeTableView: MIDITimeTableViewBase, didEdit cells: [MIDITimeTableViewEditedCellData]) {
     var removingCells = [MIDITimeTableCellIndex]()
 
     for cell in cells {
@@ -266,11 +266,11 @@ class ViewController: UIViewController, MIDITimeTableViewDataSource, MIDITimeTab
     updateHistoryButtons()
   }
 
-  func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, didUpdatePlayhead position: Double) {
+  func midiTimeTableView(_ midiTimeTableView: MIDITimeTableViewBase, didUpdatePlayhead position: Double) {
     return
   }
 
-  func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, didUpdateRangeHead position: Double) {
+  func midiTimeTableView(_ midiTimeTableView: MIDITimeTableViewBase, didUpdateRangeHead position: Double) {
     return
   }
 

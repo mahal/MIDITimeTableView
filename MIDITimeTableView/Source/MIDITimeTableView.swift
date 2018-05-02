@@ -40,40 +40,18 @@ public struct MIDITimeTableViewAutoScrollDirection: OptionSet {
   public static let down = MIDITimeTableViewAutoScrollDirection(rawValue: 1 << 3)
 }
 
-/// Populates the `MIDITimeTableView` with the datas of rows and cells.
-public protocol MIDITimeTableViewDataSource: class {
-  /// Number of rows in the time table.
-  ///
-  /// - Parameter midiTimeTableView: Time table to populate rows.
-  /// - Returns: Number of rows populate.
-  func numberOfRows(in midiTimeTableView: MIDITimeTableView) -> Int
-
-  /// Time signature of the time table.
-  ///
-  /// - Parameter midiTimeTableView: Time table to set time signature.
-  /// - Returns: Time signature of the time table.
-  func timeSignature(of midiTimeTableView: MIDITimeTableView) -> MIDITimeTableTimeSignature
-
-  /// Row data for each row in the time table.
-  ///
-  /// - Parameters:
-  ///   - midiTimeTableView: Time table that populates row data.
-  ///   - index: Index of row to populate data.
-  /// - Returns: Row data of time table for an index.
-  func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, rowAt index: Int) -> MIDITimeTableRowData
-}
 
 /// Edited cell data. Holds the edited cell's index before editing, and new row index, position and duration data after editing.
 public typealias MIDITimeTableViewEditedCellData = (index: MIDITimeTableCellIndex, newRowIndex: Int, newPosition: Double, newDuration: Double)
 
-/// Delegate functions to inform about editing cells and sizing of the time table.
-public protocol MIDITimeTableViewDelegate: class {
+/// Delegate functions to inform about editing cells
+public protocol MIDITimeTableViewEditDelegate: MIDITimeTableViewDelegate {
   /// Informs about the cell is either moved to another position, changed duration or changed position in a current or a new row.
   ///
   /// - Parameters:
   ///   - midiTimeTableView: Time table that performed changes on.
   ///   - cells: Edited cells data with changes before and after.
-  func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, didEdit cells: [MIDITimeTableViewEditedCellData])
+  func midiTimeTableView(_ midiTimeTableView: MIDITimeTableViewBase, didEdit cells: [MIDITimeTableViewEditedCellData])
 
   /// Informs about the cell is being deleted.
   ///
@@ -81,34 +59,6 @@ public protocol MIDITimeTableViewDelegate: class {
   ///   - midiTimeTableView: Time table that performed changes on.
   ///   - cells: Row and column indices of the cells will be deleting.
   func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, didDelete cells: [MIDITimeTableCellIndex])
-
-  /// Measure view height in the time table.
-  ///
-  /// - Parameter midiTimeTableView: Time table to set its measure view's height.
-  /// - Returns: Height of measure view.
-  func midiTimeTableViewHeightForMeasureView(_ midiTimeTableView: MIDITimeTableView) -> CGFloat
-
-  /// Height of each row in the time table.
-  ///
-  /// - Parameter midiTimeTableView: Time table to set its rows height.
-  /// - Returns: Height of each row.
-  func midiTimeTableViewHeightForRows(_ midiTimeTableView: MIDITimeTableView) -> CGFloat
-
-  /// Width of header cells in each row.
-  ///
-  /// - Parameter midiTimeTableView: Time table to set its header cells widths in each row.
-  /// - Returns: Width of header cell in each row.
-  func midiTimeTableViewWidthForRowHeaderCells(_ midiTimeTableView: MIDITimeTableView) -> CGFloat
-
-  /// Informs about user updated playhead position.
-  ///
-  /// - Parameter midiTimeTableView: Time table that updated.
-  func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, didUpdatePlayhead position: Double)
-
-  /// Informs about user updated range head position.
-  ///
-  /// - Parameter midiTimeTableView: Time table that updated.
-  func midiTimeTableView(_ midiTimeTableView: MIDITimeTableView, didUpdateRangeHead position: Double)
 
   /// Informs about history has been changed. You need to update your `rowData` with history's `currentItem`.
   ///
@@ -119,70 +69,26 @@ public protocol MIDITimeTableViewDelegate: class {
 }
 
 /// Draws time table with multiple rows and editable cells. Heavily customisable.
-open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDITimeTablePlayheadViewDelegate, MIDITimeTableHistoryDelegate {
-  /// Property to show measure bar. Defaults true.
-  public var showsMeasure: Bool = true
-  /// Property to show header cells in each row. Defaults true.
-  public var showsHeaders: Bool = true
-  /// Property to show grid. Defaults true.
-  public var showsGrid: Bool = true
+open class MIDITimeTableView: MIDITimeTableViewBase, MIDITimeTableHistoryDelegate, MIDITimeTablePlayheadViewDelegate, MIDITimeTableCellViewDelegate {
   /// Property to show playhead. Defaults true.
   public var showsPlayhead: Bool = true
-  /// Property to keep playhead on a position and scroll the view instead. Defaults false.
-  public var fixedPlayhead: Bool = false { didSet{ playheadView.fixedPlayhead = fixedPlayhead }}
-  /// Property to show range head that sets the playable are on the timetable. Defaults true.
-  public var showsRangeHead: Bool = true
   /// Property to enable/disable history feature. Deafults true.
   public var holdsHistory: Bool = true
-  /// Property to enable/disable editing of melody (and selection by touch and drag)
-  public var cellsSelectable = true
-
-  /// Speed of zooming by pinch gesture.
-  public var zoomSpeed: CGFloat = 0.4
-  /// Maximum width of a measure bar after zooming in. Defaults 500.
-  public var maxMeasureWidth: CGFloat = 500
-  /// Minimum width of a measure bar after zooming out. Defaults 100.
-  public var minMeasureWidth: CGFloat = 100
-  /// Initial width of a measure bar. Defaults 200.
-  public var measureWidth: CGFloat = 200 {
-    didSet {
-      if measureWidth >= maxMeasureWidth {
-        measureWidth = maxMeasureWidth
-      } else if measureWidth <= minMeasureWidth {
-        measureWidth = minMeasureWidth
-      }
-    }
-  }
-
-  /// Grid layer to set its customisable properties like drawing rules, colors or line widths.
-  public private(set) var gridLayer = MIDITimeTableGridLayer()
-  /// Measure view that draws measure bars on it. You can customise its style.
-  public private(set) var measureView = MIDITimeTableMeasureView()
   /// Playhead view that shows the current position in timetable. You can set is hidden or movable status as well as its position.
   public private(set) var playheadView = MIDITimeTablePlayheadView()
-  /// Rangehead view that shows or adjusts the playable area on the timetable.
-  public private(set) var rangeheadView = MIDITimeTablePlayheadView()
 
-  // Delegate and data source references
-  /// Current data to display of the time table.
-  private var rowData = [MIDITimeTableRowData]()
   /// History data that holds each `rowData` on each `reloadData` cycle.
   public private(set) var history = MIDITimeTableHistory()
-  /// All row header cell views currently displaying.
-  public private(set) var rowHeaderCellViews = [MIDITimeTableHeaderCellView]()
-  /// All data cell views currently displaying.
-  public private(set) var cellViews = [[MIDITimeTableCellView]]()
+  private weak var timeTableEditDelegate: MIDITimeTableViewEditDelegate?
+  override open var timeTableDelegate: MIDITimeTableViewDelegate? {
+    get { return self.timeTableEditDelegate }
+    set { self.timeTableEditDelegate = newValue as! MIDITimeTableViewEditDelegate? }
+  }
 
-  /// Data source object of the time table to populate its data.
-  public weak var dataSource: MIDITimeTableViewDataSource?
-  /// Delegate object of the time table to inform about changes and customise sizing.
-  public weak var timeTableDelegate: MIDITimeTableViewDelegate?
 
+  // if user is moving a cell
   private var isMoving = false
   private var isResizing = false
-  private var rowHeight: CGFloat = 60
-  private var measureHeight: CGFloat = 30
-  private var headerCellWidth: CGFloat = 120
   private var editingCellIndices = [MIDITimeTableCellIndex]()
 
   private var dragTimer: Timer?
@@ -194,14 +100,6 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
   private var dragViewAutoScrollingThreshold: CGFloat = 100
   private var autoScrollingTimer: Timer?
   private var autoScrollingTimerInterval: TimeInterval = 0.3
-
-  private var beatWidth: CGFloat {
-    return measureWidth / CGFloat(measureView.beatCount)
-  }
-
-  private var subbeatWidth: CGFloat {
-    return beatWidth / 4
-  }
 
   // MARK: Init
 
@@ -216,8 +114,6 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
   }
 
   private func commonInit() {
-    // Measure
-    addSubview(measureView)
     // History
     history.delegate = self
     // Playhead
@@ -230,13 +126,6 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
     rangeheadView.delegate = self
     rangeheadView.layer.zPosition = 10
     rangeheadView.shapeType = .range
-    // Grid
-    layer.insertSublayer(gridLayer, at: 0)
-    // Zoom gesture
-    let pinch = UIPinchGestureRecognizer(
-      target: self,
-      action: #selector(didPinch(pinch:)))
-    addGestureRecognizer(pinch)
     // Tap gesture
     let tap = UITapGestureRecognizer(
       target: self,
@@ -256,52 +145,6 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
       return
     }
 
-    for (index, row) in rowHeaderCellViews.enumerated() {
-      row.frame = CGRect(
-        x: 0,
-        y: measureHeight + (CGFloat(index) * rowHeight),
-        width: headerCellWidth,
-        height: rowHeight)
-    }
-
-    var duration = 0.0
-    for i in 0..<rowData.count {
-      let row = rowData[i]
-      duration = row.duration > duration ? row.duration : duration
-      for (index, cell) in row.cells.enumerated() {
-        let cellView = cellViews[i][index]
-        let startX = beatWidth * CGFloat(cell.position)
-        let width = beatWidth * CGFloat(cell.duration)
-        cellView.frame = CGRect(
-          x: headerCellWidth + startX,
-          y: measureHeight + (CGFloat(i) * rowHeight),
-          width: width,
-          height: rowHeight)
-      }
-    }
-
-    // Calculate optimum bar count for measureView.
-    // Fit measure view in time table frame even if not enough data to show in time table.
-    let minBarCount = Int(ceil(frame.size.width / measureWidth))
-    var barCount = Int(ceil(duration / Double(measureView.beatCount))) + 1
-    barCount = max(barCount, minBarCount)
-    // Check if range is set.
-    if showsRangeHead {
-      let rangePosition = rangeheadView.position
-      let rangedBarCount = Int(ceil(rangePosition / Double(measureView.beatCount))) + 1
-      barCount = max(barCount, rangedBarCount)
-    }
-    measureView.barCount = barCount
-
-    measureView.frame = CGRect(
-      x: headerCellWidth,
-      y: 0,
-      width: CGFloat(measureView.barCount) * measureWidth,
-      height: measureHeight)
-
-    contentSize = CGSize(
-      width: headerCellWidth + measureView.frame.width,
-      height: measureView.frame.height + (rowHeight * CGFloat(rowHeaderCellViews.count)))
 
     // Playhead
     playheadView.rowHeaderWidth = headerCellWidth
@@ -310,24 +153,6 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
     playheadView.measureBeatWidth = measureWidth / CGFloat(measureView.beatCount)
     playheadView.isHidden = !showsPlayhead
 
-    // Rangehead
-    rangeheadView.rowHeaderWidth = headerCellWidth
-    rangeheadView.measureHeight = measureHeight
-    rangeheadView.lineHeight = contentSize.height - measureHeight
-    rangeheadView.measureBeatWidth = measureWidth / CGFloat(measureView.beatCount)
-    rangeheadView.isHidden = !showsRangeHead
-    bringSubview(toFront: rangeheadView)
-
-    // Grid layer
-    gridLayer.rowCount = rowHeaderCellViews.count
-    gridLayer.barCount = measureView.barCount
-    gridLayer.rowHeight = rowHeight
-    gridLayer.rowHeaderWidth = headerCellWidth
-    gridLayer.measureWidth = measureWidth
-    gridLayer.measureHeight = measureHeight
-    gridLayer.beatCount = measureView.beatCount
-    gridLayer.isHidden = !showsGrid
-    gridLayer.frame = CGRect(x: 0, y: 0, width: contentSize.width, height: contentSize.height)
   }
 
 
@@ -336,59 +161,21 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
   /// - Parameter keepHistory: If you specify the history writing even if it is enabled, you can control it from here either.
   /// - Parameter historyItem: Optional history item. Defaults nil.
   public func reloadData(keepHistory: Bool = true, historyItem: MIDITimeTableHistoryItem? = nil) {
-    // Reset data source
-    rowHeaderCellViews.forEach({ $0.removeFromSuperview() })
-    rowHeaderCellViews = []
-    cellViews.flatMap({ $0 }).forEach({ $0.removeFromSuperview() })
-    cellViews = []
+    //TODO: history things 
+    //         let numberOfRows = historyItem?.count ?? dataSource?.numberOfRows(in: self) ?? 0
+    //                      guard let row = historyItem?[i] ?? dataSource?.midiTimeTableView(self, rowAt: i) else { continue }
+    
+    // add self as delegate to each cellView
+    //                 cellView.delegate = self
 
-    let numberOfRows = historyItem?.count ?? dataSource?.numberOfRows(in: self) ?? 0
-    let timeSignature = dataSource?.timeSignature(of: self) ?? MIDITimeTableTimeSignature(beats: 4, noteValue: .quarter)
-    measureView.beatCount = timeSignature.beats
 
-    // Update rowData
-    rowData.removeAll()
-    for i in 0..<numberOfRows {
-      guard let row = historyItem?[i] ?? dataSource?.midiTimeTableView(self, rowAt: i) else { continue }
-      rowData.insert(row, at: i)
-      let rowHeaderCell = row.headerCellView
-      rowHeaderCellViews.append(rowHeaderCell)
-      addSubview(rowHeaderCell)
-
-      var cells = [MIDITimeTableCellView]()
-      for (index, cell) in row.cells.enumerated() {
-        let cellView = row.cellView(cell)
-        cellView.tag = index
-        cellView.delegate = self
-        cells.append(cellView)
-        addSubview(cellView)
-      }
-      cellViews.append(cells)
-    }
-
-    // Delegate
-    rowHeight = timeTableDelegate?.midiTimeTableViewHeightForRows(self) ?? rowHeight
-    measureHeight = showsMeasure ? (timeTableDelegate?.midiTimeTableViewHeightForMeasureView(self) ?? measureHeight) : 0
-    headerCellWidth = showsHeaders ? timeTableDelegate?.midiTimeTableViewWidthForRowHeaderCells(self) ?? headerCellWidth : 0
-
-    // Update grid
-    gridLayer.setNeedsLayout()
-
+    super.reloadData()
     // Keep history
-    if holdsHistory, keepHistory, historyItem == nil {
+    /*if holdsHistory, keepHistory, historyItem == nil {
       history.append(item: rowData)
-    }
+    }*/
   }
 
-  /// Gets the row and column index of the cell view in the data source.
-  ///
-  /// - Parameter cell: The cell you want to get row and column info.
-  /// - Returns: Returns a row and column index Int pair in a tuple.
-  public func cellIndex(of cell: MIDITimeTableCellView) -> MIDITimeTableCellIndex? {
-    let row = Int((cell.frame.minY - measureHeight) / rowHeight)
-    guard let index = cellViews[row].index(of: cell), row < cellViews.count else { return nil }
-    return MIDITimeTableCellIndex(row: row, index: index)
-  }
 
   /// Unselects all cells if tapped an empty area of the time table.
   @objc private func didTap(tap: UITapGestureRecognizer) {
@@ -401,17 +188,16 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
   open override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
     super.touchesBegan(touches, with: event)
 
-    if (cellsSelectable) {
-        // Start drag timer.
-        guard let touchLocation = touches.first?.location(in: self) else { return }
-            dragStartPosition = touchLocation
-            dragTimer = Timer.scheduledTimer(
-                timeInterval: dragTimerInterval,
-                target: self,
-                selector: #selector(createDragView),
-          userInfo: nil,
-          repeats: false)
-    }
+    // Start drag timer.
+    guard let touchLocation = touches.first?.location(in: self) else { return }
+    dragStartPosition = touchLocation
+    dragTimer = Timer.scheduledTimer(
+      timeInterval: dragTimerInterval,
+      target: self,
+      selector: #selector(createDragView),
+      userInfo: nil,
+      repeats: false)
+    
   }
 
   @objc private func createDragView() {
@@ -601,22 +387,6 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
     cellViews.flatMap({ $0 }).forEach({ $0.isSelected = false })
   }
 
-  // MARK: Zooming
-
-  @objc func didPinch(pinch: UIPinchGestureRecognizer) {
-    switch pinch.state {
-    case .began, .changed:
-      var deltaScale = pinch.scale
-      deltaScale = ((deltaScale - 1) * zoomSpeed) + 1
-      deltaScale = min(deltaScale, maxMeasureWidth/measureWidth)
-      deltaScale = max(deltaScale, minMeasureWidth/measureWidth)
-      measureWidth *= deltaScale
-      setNeedsLayout()
-      pinch.scale = 1
-    default:
-      return
-    }
-  }
 
   // MARK: MIDITimeTableCellViewDelegate
 
@@ -712,7 +482,7 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
     }
 
     editingCellIndices = []
-    timeTableDelegate?.midiTimeTableView(self, didEdit: editedCells)
+    timeTableEditDelegate?.midiTimeTableView(self, didEdit: editedCells)
   }
 
   public func midiTimeTableCellViewDidTap(_ midiTimeTableCellView: MIDITimeTableCellView) {
@@ -726,7 +496,7 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
       .flatMap({ $0 })
       .filter({ $0.isSelected })
       .flatMap({ cellIndex(of: $0) })
-    timeTableDelegate?.midiTimeTableView(self, didDelete: deletingCellIndices)
+    timeTableEditDelegate?.midiTimeTableView(self, didDelete: deletingCellIndices)
   }
 
   // MARK: MIDITimeTablePlayheadViewDelegate
@@ -754,11 +524,6 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
   }
 
     public func playheadViewDidUpdatePlayheadPosition(_ playheadView: MIDITimeTablePlayheadView) {
-        // move scrollview accordingly
-        if fixedPlayhead {
-          let newXposition = playheadView.frame.origin.x - playheadView.bounds.width / 2 - headerCellWidth
-           setContentOffset(CGPoint(x: newXposition, y: contentOffset.y), animated: true)
-        }
     }
 
   // MARK: MIDITimeTableHistoryDelegate
@@ -766,7 +531,7 @@ open class MIDITimeTableView: UIScrollView, MIDITimeTableCellViewDelegate, MIDIT
   public func midiTimeTableHistory(_ history: MIDITimeTableHistory, didHistoryChange item: MIDITimeTableHistoryItem) {
     if holdsHistory {
       reloadData(historyItem: item)
-      timeTableDelegate?.midiTimeTableView(self, historyDidChange: history)
+      timeTableEditDelegate?.midiTimeTableView(self, historyDidChange: history)
     }
   }
 }
