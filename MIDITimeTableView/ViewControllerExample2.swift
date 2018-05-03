@@ -86,46 +86,9 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
     private var isDragInProgress = false
     private var lastSequencerUpdatedWhileDragTimestamp = Date.init()
     private var isPlaying = false
-    
-    // could probably done more efficiently with some nice swift mutating collection stuff that I'm not familiar with
     lazy var midiNoteData : [MIDITimeTableRowData] = {
-        var outArray : [MIDITimeTableRowData] = []
-        var lookupArray = Conductor.shared().midiNoteDataByNote
-        var rangeStarted = false
-        var firstInRange = 0
-        var lastInRange = 0
-        for notesOfSameToneIndex in 0...lookupArray.count - 1 {
-            let notes = lookupArray[notesOfSameToneIndex]
-            if notes.count > 0 {
-                if !rangeStarted { 
-                    rangeStarted = true
-                    firstInRange = notesOfSameToneIndex
-                } else {
-                    lastInRange = notesOfSameToneIndex
-                }
-            }
-            // add even when no notes in this row (as we'll show emtpy rows inbetween)
-            if rangeStarted {
-                outArray.append(convertMIDINotesToRow(notes: notes))
-                if (notesOfSameToneIndex % 12 == 0) {
-                    (outArray.last?.headerCellView as! HeaderCellView2).titleLabel.text = "C\(Int(notesOfSameToneIndex / 12))"
-                }
-            }
-        }
-        outArray = Array(outArray[0..<lastInRange - firstInRange]).reversed()        
-        return outArray
+        Conductor.shared().sequencer.midiTimeTableRowData();
     }()
-    
-    // could probably done more efficiently with some nice swift mutating collection stuff that I'm not familiar with 
-    func convertMIDINotesToRow(notes: [AKMIDINoteData]) -> MIDITimeTableRowData {
-        var cells : [MIDITimeTableCellData] = []
-        for note in notes {
-            let cellData = MIDITimeTableCellData.init(data: "\(note.velocity)", position: note.position.beats, duration: note.duration.beats)
-            cells.append(cellData)
-        }
-        let headerCell = HeaderCellView2.init(title:"")
-        return MIDITimeTableRowData.init(cells: cells, headerCellView: headerCell, cellView: { _ in return CellView2.init(frame: .zero) } )
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()

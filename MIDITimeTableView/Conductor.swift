@@ -3,7 +3,7 @@
 //  MIDITimeTableView
 //
 //  Created by Martin Halter on 24.04.18.
-//  Copyright © 2018 cemolcay. All rights reserved.
+//  Copyright © 2018 Raskin Software LLC. All rights reserved.
 //
 
 import Foundation
@@ -22,35 +22,8 @@ class Conductor {
     // MARK: -
     var midiFileName = "Morley-Now_is_the_month_of_maying" {
         didSet {
-            _midiNoteData = nil
-            _midiNoteDataByNote = nil
             sequencer.loadMIDIFile(midiFileName)
         }
-    }
-    var _midiNoteData : [AKMIDINoteData]? 
-    var midiNoteData : [AKMIDINoteData] {
-        if (_midiNoteData == nil) {
-            var outArray : [AKMIDINoteData] = []
-            for track in sequencer.tracks {
-                outArray += track.getMIDINoteData()
-            } 
-            _midiNoteData = outArray
-        }
-        return _midiNoteData!
-    }
-    
-    var _midiNoteDataByNote : [[AKMIDINoteData]]?
-    var midiNoteDataByNote : [[AKMIDINoteData]] {
-        if (_midiNoteDataByNote == nil) {
-            var outArray : [[AKMIDINoteData]] = [[]]
-            let flatNoteData = midiNoteData
-            for midiNoteNumber in 0...127 {
-                let noteNumber60 = flatNoteData.filter { $0.noteNumber == midiNoteNumber }
-                outArray.append(noteNumber60)
-            }
-            _midiNoteDataByNote = outArray
-        }
-        return _midiNoteDataByNote!
     }
     
     // MARK: - internals to make sound
