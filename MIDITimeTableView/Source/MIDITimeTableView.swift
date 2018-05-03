@@ -160,20 +160,49 @@ open class MIDITimeTableView: MIDITimeTableViewBase, MIDITimeTableHistoryDelegat
   ///
   /// - Parameter keepHistory: If you specify the history writing even if it is enabled, you can control it from here either.
   /// - Parameter historyItem: Optional history item. Defaults nil.
-  public func reloadData(keepHistory: Bool = true, historyItem: MIDITimeTableHistoryItem? = nil) {
-    //TODO: history things 
-    //         let numberOfRows = historyItem?.count ?? dataSource?.numberOfRows(in: self) ?? 0
-    //                      guard let row = historyItem?[i] ?? dataSource?.midiTimeTableView(self, rowAt: i) else { continue }
-    
-    // add self as delegate to each cellView
-    //                 cellView.delegate = self
+    public override func reloadData(keepHistory: Bool = true, historyItem: MIDITimeTableHistoryItem? = nil) {
+    // Reset data source
+    rowHeaderCellViews.forEach({ $0.removeFromSuperview() })
+    rowHeaderCellViews = []
+    cellViews.flatMap({ $0 }).forEach({ $0.removeFromSuperview() })
+    cellViews = []
 
+    let numberOfRows = historyItem?.count ?? dataSource?.numberOfRows(in: self) ?? 0
+    let timeSignature = dataSource?.timeSignature(of: self) ?? MIDITimeTableTimeSignature(beats: 4, noteValue: .quarter)
+    measureView.beatCount = timeSignature.beats
 
-    super.reloadData()
+    // Update rowData
+    rowData.removeAll()
+    for i in 0..<numberOfRows {
+      guard let row = historyItem?[i] ?? dataSource?.midiTimeTableView(self, rowAt: i) else { continue }
+      rowData.insert(row, at: i)
+      let rowHeaderCell = row.headerCellView
+      rowHeaderCellViews.append(rowHeaderCell)
+      addSubview(rowHeaderCell)
+
+      var cells = [MIDITimeTableCellView]()
+      for (index, cell) in row.cells.enumerated() {
+        let cellView = row.cellView(cell)
+        cellView.tag = index
+        cellView.delegate = self
+        cells.append(cellView)
+        addSubview(cellView)
+      }
+      cellViews.append(cells)
+    }
+
+    // Delegate
+    rowHeight = timeTableDelegate?.midiTimeTableViewHeightForRows(self) ?? rowHeight
+    measureHeight = showsMeasure ? (timeTableDelegate?.midiTimeTableViewHeightForMeasureView(self) ?? measureHeight) : 0
+    headerCellWidth = showsHeaders ? timeTableDelegate?.midiTimeTableViewWidthForRowHeaderCells(self) ?? headerCellWidth : 0
+
+    // Update grid
+    gridLayer.setNeedsLayout()
+
     // Keep history
-    /*if holdsHistory, keepHistory, historyItem == nil {
+    if holdsHistory, keepHistory, historyItem == nil {
       history.append(item: rowData)
-    }*/
+    }
   }
 
 

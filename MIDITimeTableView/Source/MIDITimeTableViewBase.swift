@@ -97,11 +97,11 @@ open class MIDITimeTableViewBase: UIScrollView {
     public private(set) var rangeheadView = MIDITimeTablePlayheadView()
     // Delegate and data source references
     /// Current data to display of the time table.
-    private var rowData = [MIDITimeTableRowData]()
+    internal var rowData = [MIDITimeTableRowData]()
     /// All row header cell views currently displaying.
-    public private(set) var rowHeaderCellViews = [MIDITimeTableHeaderCellView]()
+    public internal(set) var rowHeaderCellViews = [MIDITimeTableHeaderCellView]()
     /// All data cell views currently displaying.
-    public private(set) var cellViews = [[MIDITimeTableCellView]]()
+    public internal(set) var cellViews = [[MIDITimeTableCellView]]()
 
     /// Data source object of the time table to populate its data.
     public weak var dataSource: MIDITimeTableViewDataSource?
@@ -221,46 +221,12 @@ open class MIDITimeTableViewBase: UIScrollView {
         gridLayer.frame = CGRect(x: 0, y: 0, width: contentSize.width, height: contentSize.height)
     }
 
-    
     /// Populates row and cell datas from its data source and redraws time table. Could be invoked with an history item.
-    public func reloadData() {
-        // Reset data source
-        rowHeaderCellViews.forEach({ $0.removeFromSuperview() })
-        rowHeaderCellViews = []
-        cellViews.flatMap({ $0 }).forEach({ $0.removeFromSuperview() })
-        cellViews = []
-        
-        let numberOfRows = dataSource?.numberOfRows(in: self) ?? 0
-        let timeSignature = dataSource?.timeSignature(of: self) ?? MIDITimeTableTimeSignature(beats: 4, noteValue: .quarter)
-        measureView.beatCount = timeSignature.beats
-        
-        // Update rowData
-        rowData.removeAll()
-        for i in 0..<numberOfRows {
-            guard let row = dataSource?.midiTimeTableView(self, rowAt: i) else { continue }
-            rowData.insert(row, at: i)
-            let rowHeaderCell = row.headerCellView
-            rowHeaderCellViews.append(rowHeaderCell)
-            addSubview(rowHeaderCell)
-            
-            var cells = [MIDITimeTableCellView]()
-            for (index, cell) in row.cells.enumerated() {
-                let cellView = row.cellView(cell)
-                cellView.tag = index
-                cells.append(cellView)
-                addSubview(cellView)
-            }
-            cellViews.append(cells)
-        }
-        
-        // Delegate
-        rowHeight = timeTableDelegate?.midiTimeTableViewHeightForRows(self) ?? rowHeight
-        measureHeight = showsMeasure ? (timeTableDelegate?.midiTimeTableViewHeightForMeasureView(self) ?? measureHeight) : 0
-        headerCellWidth = showsHeaders ? timeTableDelegate?.midiTimeTableViewWidthForRowHeaderCells(self) ?? headerCellWidth : 0
-        
-        // Update grid
-        gridLayer.setNeedsLayout()
-
+    ///
+    /// - Parameter keepHistory: If you specify the history writing even if it is enabled, you can control it from here either.
+    /// - Parameter historyItem: Optional history item. Defaults nil.
+    public func reloadData(keepHistory: Bool = true, historyItem: MIDITimeTableHistoryItem? = nil) {
+        // called on and implemented by subclass
     }
     
     /// Gets the row and column index of the cell view in the data source.
