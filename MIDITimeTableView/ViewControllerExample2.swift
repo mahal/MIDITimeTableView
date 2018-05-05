@@ -85,6 +85,7 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
     private var updateIntervalTimer : Timer?
     private var isDragInProgress = false
     private var lastSequencerUpdatedWhileDragTimestamp = Date.init()
+    private var lastRelativeDragPosition = 0.0
     private var isPlaying = false
     lazy var midiNoteData : [MIDITimeTableRowData] = {
         Conductor.shared().sequencer.midiTimeTableRowData();
@@ -130,6 +131,7 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
         isPlaying = false
         stopUpdatePlaheadTimer()
         Conductor.shared().sequencer.stop()
+        Conductor.shared().sequencer.rewind()
     }
     
   func startUpdatePlayheadTimer() {
@@ -187,29 +189,68 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
 
   // MARK: UIScrollViewDelegate
   public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    // this event comes when we manipulate the contentOffset by our own and when user drags the view. 
+    // this event comes when we manipulate the contentOffset by our own and when user drags the view.
     // update the sequencer when in manual drag
     if isDragInProgress {
+      // calc delta time since last event, scrollduration
+      let deltaTimeInterval = -1 * lastSequencerUpdatedWhileDragTimestamp.timeIntervalSinceNow
+      // calc how much midi-time is in between the current position of sequencer and the newly set position by scroll
+      let sequencer = Conductor.shared().sequencer
+      // duration didn't work with seconds. need to use beats and convert them as AKDuration can't convert directly.
+      let oldMusicTimeBeats = sequencer.currentPosition
+      let oldMusicTime = sequencer.seconds(duration: oldMusicTimeBeats)
+      let newRelativePosition = Double( (self.pianoRollView?.contentOffset.x)! / (self.pianoRollView?.contentSize.width)! )
+      let sequencerLenghtSeconds = sequencer.seconds(duration:sequencer.length)
+      let newMusicTime = sequencerLenghtSeconds * Double(newRelativePosition)
+
+      AKLog("delta musictime: \(newMusicTime - oldMusicTime) ")
+      //AKLog("delta the user scrolled: ")
+        //delta usertime \( sequencerLenghtSeconds * (lastRelativeDragPosition - newRelativePosition) )")
+
+      if oldMusicTime < newMusicTime {
+        // user scrolled forward in time: set the tempo to catch up
+        let tempo = (newMusicTime - oldMusicTime ) / deltaTimeInterval
+        AKLog("tempo \(tempo)")
+        if isPlaying && deltaTimeInterval > 0.3{
+          sequencer.setRate(abs(tempo))
+        }
+        // delta timeinterval is how long passed since last event, and not how much time the user scrolled since last scroll-evnt
+      }
+      lastRelativeDragPosition = newRelativePosition
+      lastSequencerUpdatedWhileDragTimestamp = Date.init()
+
+      //let tempo = (newMusicTime - oldMusicTime ) / deltaTimeInterval
+      //sequencer.setRate(abs(tempo))
+      //AKLog("tempo \(tempo)")
+      //AKLog("old: \(oldMusicTime)  newMusicTime \(newMusicTime)")
+      // AKLog("old: \(oldMusicTime)  newMusicTime \(newMusicTime)")
+      
+
+      /*
       if lastSequencerUpdatedWhileDragTimestamp.timeIntervalSinceNow < TimeInterval(-0.3) {
         lastSequencerUpdatedWhileDragTimestamp = Date.init()
+        let relativePosition = (self.pianoRollView?.contentOffset.x)! / (self.pianoRollView?.contentSize.width)!
         DispatchQueue.global(qos: .userInitiated).async {
           let sequencer = Conductor.shared().sequencer
-          let relativePosition = (self.pianoRollView?.contentOffset.x)! / (self.pianoRollView?.contentSize.width)!
           //NSLog("relative position \(relativePosition)")
           let newTimestamp = sequencer.length.musicTimeStamp * Double(relativePosition)
           sequencer.setTime(newTimestamp)
         }
-      }
+      }*/
+      
     }
   }
   
   public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
     isDragInProgress = true
+    lastSequencerUpdatedWhileDragTimestamp = Date.init()
+    Conductor.shared().sequencer.setRate(0.00001)
+    lastRelativeDragPosition = Double( (self.pianoRollView?.contentOffset.x)! / (self.pianoRollView?.contentSize.width)! )
     // without live scrubbing: stop timer and sequencer
-    //stop(self)  
+    //stop(self)
     
-    // with live scrubbing: only stop timer. 
-    // doens't really work as well as in Logic. Maybe need to iterate the sequence and play notes at the current scroll position. 
+    // with live scrubbing: only stop timer.
+    // doens't really work as well as in Logic. Maybe need to iterate the sequence and play notes at the current scroll position.
      updateIntervalTimer?.invalidate()
 
   }
@@ -229,6 +270,7 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
   func dragEnded() {
     if isDragInProgress {
       isDragInProgress = false
+      Conductor.shared().sequencer.setRate(1.0)
       if isPlaying {
         startUpdatePlayheadTimer()
       } else {
