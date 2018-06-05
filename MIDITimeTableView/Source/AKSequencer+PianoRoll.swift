@@ -37,7 +37,7 @@ extension AKSequencer {
                 }
             }
         }
-        outArray = Array(outArray[0..<lastInRange - firstInRange]).reversed()        
+        outArray = Array(outArray[0 ..< (lastInRange - firstInRange) + 1]).reversed()        
         return outArray
     }
     
@@ -64,12 +64,15 @@ extension AKSequencer {
     
     // this might be slow.
     var midiNoteDataByNote : [[AKMIDINoteData]] {
+        // create array. it's not emtpy! it contains 1 element
         var outArray : [[AKMIDINoteData]] = [[]]
         let flatNoteData = midiNoteData
         for midiNoteNumber in 0...127 {
             let noteNumber60 = flatNoteData.filter { $0.noteNumber == midiNoteNumber }
             outArray.append(noteNumber60)
         }
+        // strangely the array was created not empty but with 1 element at the beginning
+        outArray.removeFirst(1)
         return outArray
     }
 }
