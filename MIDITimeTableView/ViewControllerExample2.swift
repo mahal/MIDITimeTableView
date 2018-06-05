@@ -158,8 +158,20 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
     }
     
     func timeSignature(of midiTimeTableView: MIDITimeTableViewBase) -> MIDITimeTableTimeSignature {
-        // TODO: how to represent it? can it be read from the midi-file?
-        return MIDITimeTableTimeSignature(beats: 4, noteValue: .quarter)
+        // TODO: if there are several signatures: just show beats and no bars
+        let akTimeSig = Conductor.shared().sequencer.getTimeSignature(at:0)
+        var bottomValue = MIDITimeTableNoteValue.quarter
+        switch akTimeSig.bottomValue {
+        case .two:
+            bottomValue = .half
+        case .four:
+            bottomValue = .quarter
+        case .eight:
+            bottomValue = .eighth
+        case .sixteen:
+            bottomValue = .sixteenth
+        }
+        return MIDITimeTableTimeSignature(beats: Int(akTimeSig.topValue), noteValue: bottomValue)
     }
     
     func midiTimeTableView(_ midiTimeTableView: MIDITimeTableViewBase, rowAt index: Int) -> MIDITimeTableRowData {
