@@ -9,6 +9,7 @@
 import UIKit
 import AudioKit
 
+// class that displays the note-name (like C6)
 class HeaderCellView2: MIDITimeTableHeaderCellView {
     var titleLabel = UILabel()
     
@@ -42,6 +43,7 @@ class HeaderCellView2: MIDITimeTableHeaderCellView {
     }
 }
 
+// class that displays single notes
 class CellView2: MIDITimeTableCellView {
     
     override init(frame: CGRect) {
@@ -79,6 +81,7 @@ class CellView2: MIDITimeTableCellView {
 }
 
 
+// view controller for the second example with a piano roll
 class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MIDITimeTableViewDelegate, UIScrollViewDelegate {
     
     @IBOutlet weak var pianoRollView: MIDITimeTablePianoRollView?
