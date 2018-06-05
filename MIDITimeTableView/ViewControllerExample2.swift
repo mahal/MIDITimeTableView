@@ -93,7 +93,7 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
 
     override func viewDidLoad() {
         super.viewDidLoad()
-      Conductor.shared().midiFileName = "Br-151"
+        Conductor.shared().midiFileName = "chromatik"
         Conductor.shared().loadMelody()
         play(self)
         setupPianoRollView()
