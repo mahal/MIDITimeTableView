@@ -180,7 +180,7 @@ open class MIDITimeTableViewBase: UIScrollView {
         // Calculate optimum bar count for measureView.
         // Fit measure view in time table frame even if not enough data to show in time table.
         let minBarCount = Int(ceil(frame.size.width / measureWidth))
-        var barCount = Int(ceil(duration / Double(measureView.beatCount))) + 1
+        var barCount = Int(ceil(duration / Double(measureView.beatCount)))
         barCount = max(barCount, minBarCount)
         // Check if range is set.
         if showsRangeHead {
