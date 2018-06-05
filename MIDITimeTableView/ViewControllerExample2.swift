@@ -35,6 +35,7 @@ class HeaderCellView2: MIDITimeTableHeaderCellView {
         titleLabel.textColor = UIColor(red: 216.0/255.0, green: 214.0/255.0, blue: 217.0/255.0, alpha: 1)
         titleLabel.textAlignment = .center
         titleLabel.font = UIFont.systemFont(ofSize: 5)
+        titleLabel.lineBreakMode = .byWordWrapping
     }
     
     override func layoutSubviews() {
