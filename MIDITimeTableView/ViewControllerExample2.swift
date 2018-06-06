@@ -86,6 +86,7 @@ class CellView2: MIDITimeTableCellView {
 class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MIDITimeTableViewDelegate, UIScrollViewDelegate {
     
     @IBOutlet weak var pianoRollView: MIDITimeTablePianoRollView?
+    private var pianoPlayScrollAnimator : UIViewPropertyAnimator?
     private var updateIntervalTimer : Timer?
     private var isDragInProgress = false
     private var lastSequencerUpdatedWhileDragTimestamp = Date.init()
@@ -130,15 +131,24 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
         //let durationInSec = (sequencer.tempo / 60) * sequencer.length().beats
         let durationInSec = sequencer.seconds(duration:sequencer.length)
         isPlaying = true
-        DispatchQueue.main.async() {
+        
+        pianoPlayScrollAnimator = UIViewPropertyAnimator(duration: durationInSec, curve: UIViewAnimationCurve.linear, animations: {
+            self.pianoRollView?.contentOffset.x = (self.pianoRollView?.contentSize.width)!
+        })
+        
+        pianoPlayScrollAnimator?.startAnimation()
+        
+        
+        /*DispatchQueue.main.async() {
             UIView.animate(withDuration: durationInSec, delay: 0, options: UIViewAnimationOptions.curveLinear, animations: {
                 self.pianoRollView?.contentOffset.x = (self.pianoRollView?.contentSize.width)!
             }, completion: nil)
-        }
+        }*/
     }
     
     @IBAction func stop(_ sender: Any) {
         isPlaying = false
+        pianoPlayScrollAnimator?.stopAnimation(true)
         stopUpdatePlaheadTimer()
         Conductor.shared().sequencer.stop()
         Conductor.shared().sequencer.rewind()
