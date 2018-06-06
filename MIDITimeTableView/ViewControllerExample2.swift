@@ -129,7 +129,8 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
         let sequencer = Conductor.shared().sequencer
         sequencer.play()
         //let durationInSec = (sequencer.tempo / 60) * sequencer.length().beats
-        let durationInSec = sequencer.seconds(duration:sequencer.length)
+        var durationInSec = sequencer.seconds(duration:sequencer.length)
+        durationInSec = durationInSec / sequencer.rate
         isPlaying = true
         
         pianoPlayScrollAnimator = UIViewPropertyAnimator(duration: durationInSec, curve: UIViewAnimationCurve.linear, animations: {
@@ -156,8 +157,15 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
     
     @IBAction func tempoChanged(_ sender: UISlider) {
         let newValue: Float = sender.value
-        Conductor.shared().sequencer.setRate(Double(newValue))
-        AKLog("tempo: \(Conductor.shared().sequencer.rate)")
+        let sequencer = Conductor.shared().sequencer 
+        sequencer.setRate(Double(newValue))
+        if (pianoPlayScrollAnimator != nil && (pianoPlayScrollAnimator?.isRunning)!) {
+            pianoPlayScrollAnimator?.pauseAnimation()
+            let relativePosition = sequencer.currentRelativePosition
+            // var durationFactor = durationInSec / ( ( durationInSec / newValue ) -  (durationInSec / newValue) * relativePosition  )
+            let durationFactor = newValue / ( -relativePosition + 1)
+            pianoPlayScrollAnimator?.continueAnimation(withTimingParameters: UICubicTimingParameters.init(animationCurve: UIViewAnimationCurve.linear), durationFactor: CGFloat(1/durationFactor))
+        }
     }
     
   func startUpdatePlayheadTimer() {
