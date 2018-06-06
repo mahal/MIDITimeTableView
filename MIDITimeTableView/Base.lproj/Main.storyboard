@@ -105,6 +105,15 @@
                                             <action selector="play:" destination="pfX-dS-fY8" id="v1V-ij-Ntt"/>
                                         </connections>
                                     </barButtonItem>
+                                    <barButtonItem style="plain" id="31o-ny-Hu8">
+                                        <slider key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="9.9999999999999995e-07" maxValue="5" id="dbN-S0-1j4">
+                                            <rect key="frame" x="210" y="5" width="146" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                            <connections>
+                                                <action selector="tempoChanged:" destination="pfX-dS-fY8" eventType="valueChanged" id="cTY-zT-NBW"/>
+                                            </connections>
+                                        </slider>
+                                    </barButtonItem>
                                 </items>
                             </toolbar>
                         </subviews>

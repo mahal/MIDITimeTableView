@@ -144,6 +144,12 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
         Conductor.shared().sequencer.rewind()
     }
     
+    @IBAction func tempoChanged(_ sender: UISlider) {
+        let newValue: Float = sender.value
+        Conductor.shared().sequencer.setRate(Double(newValue))
+        AKLog("tempo: \(Conductor.shared().sequencer.rate)")
+    }
+    
   func startUpdatePlayheadTimer() {
     updateIntervalTimer = Timer.scheduledTimer(
       timeInterval: 0.1,
