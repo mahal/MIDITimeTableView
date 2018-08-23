@@ -134,6 +134,11 @@ open class MIDITimeTableViewBase: UIScrollView {
 
     private func commonInit() {
         // Measure
+        measureView.layer.borderWidth = 0.5
+        measureView.layer.borderColor = UIColor.cyan.cgColor
+        self.layer.borderWidth = 1.0
+        self.layer.borderColor = UIColor.green.cgColor
+
         addSubview(measureView)
         // Grid
         layer.insertSublayer(gridLayer, at: 0)
