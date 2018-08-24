@@ -15,7 +15,7 @@ extension AKSequencer {
     // might be slow so please cache the result in your conductor/viewcontroller
     open func midiTimeTableRowData() -> [MIDITimeTableRowData] {
         var outArray : [MIDITimeTableRowData] = []
-        var lookupArray = Conductor.shared().sequencer.midiNoteDataByNote
+        var lookupArray = WRKAKConductor.shared().sequencer.midiNoteDataByNote
         var rangeStarted = false
         var firstInRange = 0
         var lastInRange = 0

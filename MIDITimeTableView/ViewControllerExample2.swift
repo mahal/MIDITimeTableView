@@ -93,18 +93,18 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
     private var lastRelativeDragPosition = 0.0
     private var isPlaying = false
     lazy var midiNoteData : [MIDITimeTableRowData] = {
-        Conductor.shared().sequencer.midiTimeTableRowData();
+        WRKAKConductor.shared().sequencer.midiTimeTableRowData();
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        Conductor.shared().midiFileName = "chromatik"
-        Conductor.shared().loadMelody()
+        WRKAKConductor.shared().midiFileName = "chromatik"
+        WRKAKConductor.shared().loadMelody()
         setupPianoRollView()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        Conductor.shared().sequencer.stop()
+        WRKAKConductor.shared().sequencer.stop()
     }
     
     func setupPianoRollView() {
@@ -126,7 +126,7 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
     }
     
     @IBAction func play(_ sender: Any) {
-        let sequencer = Conductor.shared().sequencer
+        let sequencer = WRKAKConductor.shared().sequencer
         sequencer.play()
         //let durationInSec = (sequencer.tempo / 60) * sequencer.length().beats
         var durationInSec = sequencer.seconds(duration:sequencer.length)
@@ -151,13 +151,13 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
         isPlaying = false
         pianoPlayScrollAnimator?.stopAnimation(true)
         stopUpdatePlaheadTimer()
-        Conductor.shared().sequencer.stop()
-        Conductor.shared().sequencer.rewind()
+        WRKAKConductor.shared().sequencer.stop()
+        WRKAKConductor.shared().sequencer.rewind()
     }
     
     @IBAction func tempoChanged(_ sender: UISlider) {
         let newValue: Float = sender.value
-        let sequencer = Conductor.shared().sequencer 
+        let sequencer = WRKAKConductor.shared().sequencer 
         sequencer.setRate(Double(newValue))
         if (pianoPlayScrollAnimator != nil && (pianoPlayScrollAnimator?.isRunning)!) {
             pianoPlayScrollAnimator?.pauseAnimation()
@@ -190,7 +190,7 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
     
     func timeSignature(of midiTimeTableView: MIDITimeTableViewBase) -> MIDITimeTableTimeSignature {
         // TODO: if there are several signatures: just show beats and no bars
-        let akTimeSig = Conductor.shared().sequencer.getTimeSignature(at:0)
+        let akTimeSig = WRKAKConductor.shared().sequencer.getTimeSignature(at:0)
         var bottomValue = MIDITimeTableNoteValue.quarter
         switch akTimeSig.bottomValue {
         case .two:
@@ -241,7 +241,7 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
       // calc delta time since last event, scrollduration
       let deltaTimeInterval = -1 * lastSequencerUpdatedWhileDragTimestamp.timeIntervalSinceNow
       // calc how much midi-time is in between the current position of sequencer and the newly set position by scroll
-      let sequencer = Conductor.shared().sequencer
+      let sequencer = WRKAKConductor.shared().sequencer
       // duration didn't work with seconds. need to use beats and convert them as AKDuration can't convert directly.
       let oldMusicTimeBeats = sequencer.currentPosition
       let oldMusicTime = sequencer.seconds(duration: oldMusicTimeBeats)
@@ -276,7 +276,7 @@ class ViewControllerExample2: UIViewController, MIDITimeTableViewDataSource, MID
         lastSequencerUpdatedWhileDragTimestamp = Date.init()
         let relativePosition = (self.pianoRollView?.contentOffset.x)! / (self.pianoRollView?.contentSize.width)!
         DispatchQueue.global(qos: .userInitiated).async {
-          let sequencer = Conductor.shared().sequencer
+          let sequencer = WRKAKConductor.shared().sequencer
           //NSLog("relative position \(relativePosition)")
           let newTimestamp = sequencer.length.musicTimeStamp * Double(relativePosition)
           sequencer.setTime(newTimestamp)

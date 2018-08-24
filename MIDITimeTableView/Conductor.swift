@@ -9,9 +9,9 @@
 import Foundation
 import AudioKit
 
-class Conductor {
-    private static var sharedConductor: Conductor = {
-        let singletonConductor = Conductor.init()
+class WRKAKConductor {
+    private static var sharedConductor: WRKAKConductor = {
+        let singletonConductor = WRKAKConductor.init()
         
         // Configuration
         // ...
@@ -55,7 +55,7 @@ class Conductor {
     
     // MARK: - Accessors
     
-    class func shared() -> Conductor {
+    class func shared() -> WRKAKConductor {
         return sharedConductor
     }
 
